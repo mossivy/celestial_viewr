@@ -5,6 +5,7 @@
     { "path": "./tsconfig.node.json" }
   ],
   "compilerOptions": {
+    "jsx": "react",
     "sourceMap": true,  // Ensure this option is true
     "outDir": "./dist", // If needed
     "strict": true,
