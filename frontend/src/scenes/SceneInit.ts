@@ -4,7 +4,7 @@ import Stats from 'three/examples/jsm/libs/stats.module';
 
 //Based on SuboptimalEng tutorial series
 export default class SceneInit {
-  constructor(canvasId) {
+  constructor(canvasId, debugMode=false) {
     this.scene = undefined;
     this.camera = undefined;
     this.renderer = undefined;
@@ -17,6 +17,7 @@ export default class SceneInit {
     this.controls = undefined;
     this.ambientLight = undefined;
     this.spotlight = undefined;
+    this.debugMode = debugMode; 
   }
 
   initialize() {
@@ -37,18 +38,22 @@ export default class SceneInit {
     document.body.appendChild(this.renderer.domElement);
     this.clock = new THREE.Clock();
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-    this.stats = Stats();
     this.setupLighting();
-    document.body.appendChild(this.stats.dom);
 
+    if (this.debugMode) {
+      this.stats = Stats();
+      document.body.appendChild(this.stats.dom);
+    }
     window.addEventListener('resize', () => this.onWindowResize(), false);
   }
   
   animate() {
     window.requestAnimationFrame(this.animate.bind(this));
     this.render();
-    this.stats.update();
     this.controls.update();
+    if (this.debugMode) {
+      this.stats.update();
+    }
   }
 
   render() {

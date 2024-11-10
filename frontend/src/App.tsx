@@ -7,7 +7,7 @@ function App() {
 
   //TODO use the dependencies param for planet_data
   useEffect(() => {
-    const sceneObj = new SceneInit('threeJSCanvas');
+    const sceneObj = new SceneInit('threeJSCanvas', false);
     sceneObj.initialize();
     sceneObj.animate();
 
