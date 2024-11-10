@@ -1,46 +1,18 @@
 import { useEffect } from 'react';
 import * as THREE from 'three';
 import './styles/App.css';
-
+import SceneInit from './scenes/SceneInit.ts';
 
 function App() {
 
-
   //TODO use the dependencies param for planet_data
   useEffect(() => {
+    const sceneObj = new SceneInit('threeJSCanvas');
+    sceneObj.initialize();
+    sceneObj.animate();
 
-    const scene  = new THREE.Scene(); 
-    const camera = new THREE.PerspectiveCamera(
-      50, 
-      window.innerWidth / window.innerHeight, 
-      1, 
-      1000
-    );
-    camera.position.z = 5;
-
-    const canvas = document.getElementById("threeJSCanvas") as HTMLCanvasElement;
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      antialias: true,  
-    });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
-
-    const {ambientLight, spotlight} = setupLighting();
     const box = setupBox();
-    scene.add(ambientLight);
-    scene.add(spotlight);
-    scene.add(box);
-  
-
-    const animate = () => {
-
-      box.rotation.x += 0.01;
-      box.rotation.y += 0.01;
-      renderer.render(scene, camera);
-      window.requestAnimationFrame(animate);
-    };
-    animate();
+    sceneObj.scene.add(box);
   }, []);
 
   return (
@@ -50,17 +22,6 @@ function App() {
   )
 }
 
-//Returns lighting objects
-const setupLighting = () => {
-   
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-  ambientLight.castShadow = true;
-  const spotlight = new THREE.SpotLight(0xffffff, 1.0);
-  spotlight.castShadow = true;
-  spotlight.position.set(0, 64, 32);
-
-  return {ambientLight, spotlight};
-};
 
 //Create box objects
 const setupBox = () => {
