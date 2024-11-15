@@ -1,61 +1,50 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import * as THREE from "three";
-import { Canvas, useThree } from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
 import { Fullscreen } from "@react-three/uikit";
 import { Defaults } from "@react-three/uikit-apfel";
-import { Card } from "@react-three/uikit-apfel";
-import { Container, Text } from "@react-three/uikit";
-import { OrbitControls } from "@react-three/drei";
 
-function UiElement() {
-  return (
-    <Container>
-      <Card borderRadius={32} padding={16}>
-        <Text>Tester Text!!</Text>
-      </Card>
-    </Container>
-  );
-}
+//pretty common names in THREE may need to change
+import Sphere from "./components/Sphere";
+import UiBar  from "./components/UiBar";
+import Camera from "./components/Camera";
 
-function Camera() {
-  const { gl, camera } = useThree();
-
-  useEffect(() => {
-    const handleResize = () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      gl.setSize(window.innerWidth, window.innerHeight);
-    };
-    window.addEventListener("resize", handleResize);
-    handleResize(); // Should fix the centering issue
-
-    return () => window.removeEventListener("resize", handleResize);
-  }, [gl, camera]);
-
-  return null;
+interface ObjectData {
+  id: string;
+  name: string;
+  position: [number, number, number];
+  color: THREE.Color| string | number;
 }
 
 export default function App() {
-  const [objects, setObjects] = useState([]);
-
-  function addObject() {
-    setObjects([
-      ...objects,
-      {
-        id: Date.now(), // Unique ID
-        position: [0, 0, 0],
-        color: new THREE.Color(
-          Math.random(),
-          Math.random(),
-          Math.random()
-        ).getHex(), // Random color
-      },
-    ]);
-  }
+  const [objects, setObjects] = useState<ObjectData[]>([]);
+  const [focus, setFocus] = useState<null | [number, number, number]>(null);
+  const isFirstRender = useRef(true); 
 
   useEffect(() => {
-    addObject();
+    console.log("useEffect called");
+    if (isFirstRender.current) {
+      addObject("Sphere 1", [0, 0, 0]);
+      addObject("Sphere 2", [5, 0, 0]);
+      addObject("Sphere 3", [-5, 0, 0]);
+      isFirstRender.current = false;
+    }
   }, []);
+
+  function addObject(name: string, position: [number, number, number]) {
+    const newObject = {
+      id: `${Date.now()}-${Math.random()}`,
+      name,
+      position,
+      color: new THREE.Color(
+        Math.random(),
+        Math.random(),
+        Math.random()
+      ).getHex(),
+    };
+    setObjects((prevObjects) => [...prevObjects, newObject]);
+  }
 
   return (
     <Canvas
@@ -70,10 +59,10 @@ export default function App() {
       }}
       gl={{ localClippingEnabled: true }}
     >
-      <Camera />
       <ambientLight intensity={0.5} />
       <directionalLight intensity={1} position={[0, 5, 10]} />
       <OrbitControls target={[0, 0, 0]} />
+      <Camera focus={focus} />
       <Defaults>
         <Fullscreen
           flexDirection="column"
@@ -82,18 +71,23 @@ export default function App() {
           paddingTop={25}
           paddingBottom={0}
         >
-          <UiElement />
+           {console.log("Objects passed to UiBar:", objects)}
+          <UiBar
+            objects={objects}
+            setFocus={(position) => setFocus(position)}
+          />
         </Fullscreen>
       </Defaults>
       {objects.map((object) => (
-        <mesh key={object.id} position={object.position}>
-          <boxGeometry args={[1, 1, 1]} />
-          <meshStandardMaterial color={object.color} />
-        </mesh>
+        <Sphere
+          key={object.id}
+          position={object.position}
+          color={object.color}
+          id={object.id}
+          onClick={() => setFocus(object.position)}
+        />
       ))}
       <axesHelper args={[5]} />
     </Canvas>
   );
 }
-
-// Lighting setup inside Canvas component

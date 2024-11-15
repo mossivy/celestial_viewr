@@ -1,0 +1,11 @@
+Use command-line tools to download. For example:
+
+curl -O <URL to PDS label or data file>
+
+Extract metadata with xmlstarlet or xpath:
+libxml2's xmllint for parsing and validating XML labels.
+
+
+xmlstarlet sel -t -v "//ns:some-attribute" -n --ns ns="http://pds.nasa.gov/pds4/pds/v1" file.xml
+
+File conversion may be needed
